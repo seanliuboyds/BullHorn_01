@@ -1,54 +1,97 @@
 package com.example.demo;
 
+import com.cloudinary.utils.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
+import java.io.IOException;
+import java.util.Map;
 
 @Controller
 public class HomeController {
     @Autowired
-    CourseRepository courseRepository;
+    HornsRepository hornsRepository;
+
+    @Autowired
+    CloudinaryConfig cloudc;
 
     @RequestMapping("/")
-    public String listCourses(Model model){
-        model.addAttribute("courses", courseRepository.findAll());
+    public String listHorns(Model model) {
+        model.addAttribute("horns", hornsRepository.findAll());
         return "list";
     }
+
     @GetMapping("/add")
-    public String courseForm(Model model){
-        model.addAttribute("course", new Course());
-        return "courseForm";
+    public String hornForm(Model model) {
+        model.addAttribute("horn", new Horn());
+        return "hornform";
     }
-    @PostMapping("/process")
-    public String processForm(@Valid Course course, BindingResult result)
-    {
-        if (result.hasErrors()){
-            return "courseForm";
+
+    @PostMapping("/loading")
+    public String loadingForm(@Valid Horn horn, BindingResult result, @RequestParam("file") MultipartFile file) {
+        if (result.hasErrors()) {
+            return "hornform";
         }
-        courseRepository.save(course);
+        hornsRepository.save(horn);
+        if (file.isEmpty()) {
+            return "redirect:/add";
+        }
+        try {
+            Map uploadResult = cloudc.upload(file.getBytes(),
+                    ObjectUtils.asMap("resourceType", "auto"));
+            horn.setImage(uploadResult.get("url").toString());
+            hornsRepository.save(horn);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "redirect:/add";
+        }
         return "redirect:/";
     }
+
     @RequestMapping("/detail/{id}")
-    public String showCourse(@PathVariable("id") long id, Model model){
-    model.addAttribute("course", courseRepository.findById(id).get());
-    return "show";
+    public String showHorn(@PathVariable("id") long id, Model model) {
+        model.addAttribute("horn", hornsRepository.findById(id).get());
+        return "show";
     }
-    @RequestMapping("/update/(id)")
-    public String updateCourse(@PathVariable("id") long id, Model model){
-        model.addAttribute("course", courseRepository.findById(id).get());
+
+    @GetMapping("/update/{id}")
+    public String updateHorn(@PathVariable("id") long id, Model model) {
+        model.addAttribute("horn", hornsRepository.findById(id).get());
+
+        return "hornform";
+    }
+
+    @RequestMapping("/delete/{id}")
+    public String delHorn(@PathVariable("id") long id) {
+        hornsRepository.deleteById(id);
         return "redirect:/";
     }
-    @RequestMapping("/delete/(id)")
-    public String delCourse(@PathVariable("id") long id){
-        courseRepository.deleteById(id);
-        return "redirect:/";
+
+    //    @RequestMapping("/")
+//    public String index(){
+//        return "index";
+//    }
+    @RequestMapping("/login")
+    public String login() {
+        return "login";
     }
+
+    @RequestMapping("/secure")
+    public String secure() {
+        return "secure";
+    }
+
+    @RequestMapping("/register")
+    public String register() {
+        return "registration";
+    }
+
+
 }
+
 
