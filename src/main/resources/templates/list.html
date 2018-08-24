@@ -9,18 +9,19 @@
 <nav th:replace="base :: navbar"></nav>
 <div class="container">
     <div class="jumbotron">
-        <a href="/add">Add a Course</a><br />
-        <table>
+        <a href="/add">Add a Message</a><br />
+        <table class="table">
                 <tr>
                     <th>Message</th>
                     <th>Sent By</th>
                     <th>Date</th>
                     <th>Image</th>
+                    <th>Options</th>
                 </tr>
             <tr th:each="horn : ${horns}">
-                <td th:text="${horn.message}"></td>
-                <td th:text="${horn.sent}"></td>
-                <td th:text="${horn.time}"></td>
+                <td th:text="${horn.message}" class="mr-3"></td>
+                <td th:text="${horn.sent}" class="mr-3"></td>
+                <td th:text="${horn.time}" class="mr-3"></td>
                 <td><img th:src="${horn.image}" /></td>
                 <td>
                     <a th:href="@{/update/{id}(id=${horn.id})}">Update</a>
