@@ -11,7 +11,7 @@
     <div class="jumbotron">
         <a href="/">Show All Courses</a><br />
         Message :<span th:text="${horn.message}"></span><br />
-        Sent By :<span th:text="${horn.instructor}"></span><br />
+        Sent By :<span th:text="${horn.sent}"></span><br />
         Time :<span th:text="${horn.time}"></span><br />
         <a th:href="@{/delete/{id}(id=${horn.id})}">Delete this horn</a>
     </div>
